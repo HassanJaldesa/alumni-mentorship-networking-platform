@@ -26,3 +26,14 @@ Setup instructions will be added as each component is built.
    Get-ChildItem database\migrations\*.sql | Sort-Object Name | ForEach-Object { psql -U alumni_app1 -d alumni_mentorship -v ON_ERROR_STOP=1 -q -f $_.FullName }
    Remove-Item Env:PGPASSWORD
    ```
+   ## Recommendation service setup (ml-service)
+```powershell
+cd ml-service
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+Copy-Item .env.example .env   # then fill in the real values
+python -m pytest -v           # 3 tests should pass
+uvicorn app.main:app --reload
+```
+Check http://localhost:8000/health, http://localhost:8000/health/db and http://localhost:8000/docs.

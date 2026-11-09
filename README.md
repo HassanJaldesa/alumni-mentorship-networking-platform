@@ -37,3 +37,12 @@ python -m pytest -v           # 3 tests should pass
 uvicorn app.main:app --reload
 ```
 Check http://localhost:8000/health, http://localhost:8000/health/db and http://localhost:8000/docs.
+
+## Web app setup (frontend)
+```powershell
+cd frontend
+npm install
+Copy-Item .env.example .env.local   # then fill in the real values
+npm run dev
+```
+With the recommendation service also running, http://localhost:3000/api/health should return `"status":"ok"`.

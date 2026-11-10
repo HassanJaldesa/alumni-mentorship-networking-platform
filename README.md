@@ -46,3 +46,10 @@ Copy-Item .env.example .env.local   # then fill in the real values
 npm run dev
 ```
 With the recommendation service also running, http://localhost:3000/api/health should return `"status":"ok"`.
+
+### Authentication
+
+- Students and alumni mentors register on the `/login` page (Register form). Administrator accounts are created directly in the database.
+- Passwords are hashed with bcrypt (cost 12) before they are stored.
+- A signed session token (JWT, HS256) is kept in an HTTP-only cookie and expires after 12 hours. `JWT_SECRET` in `frontend/.env.local` must be at least 32 characters.
+- `frontend/middleware.ts` limits `/student`, `/mentor` and `/admin` (and `/api/student`, `/api/mentor`, `/api/admin`) to the matching role. Logged-out visitors are sent to `/login`.

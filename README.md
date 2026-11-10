@@ -53,3 +53,11 @@ With the recommendation service also running, http://localhost:3000/api/health s
 - Passwords are hashed with bcrypt (cost 12) before they are stored.
 - A signed session token (JWT, HS256) is kept in an HTTP-only cookie and expires after 12 hours. `JWT_SECRET` in `frontend/.env.local` must be at least 32 characters.
 - `frontend/middleware.ts` limits `/student`, `/mentor` and `/admin` (and `/api/student`, `/api/mentor`, `/api/admin`) to the matching role. Logged-out visitors are sent to `/login`.
+
+### Onboarding and profile vectors
+
+- Apply `database/migrations/010_add_profile_text_fields.sql` after migrations 001 to 009.
+- New students and mentors are sent to the onboarding questionnaire (`/student/onboarding`, `/mentor/onboarding`) until it is complete. The same page is used to edit the profile.
+- Saving the questionnaire stores the answers and calls `POST /profiles/{user_id}/vectors` on the recommendation service, which stores a 384-dimension SBERT embedding, a 44-dimension multi-hot vector and a 428-dimension unified vector in `profile_vectors`.
+- Requests to the recommendation service carry a 60-second HS256 JWT signed with a shared secret: `SERVICE_TOKEN` in `ml-service/.env` and `ML_SERVICE_TOKEN` in `frontend/.env.local` must be identical.
+- The fixed answer lists are kept in `ml-service/app/vocabulary.py` and `frontend/lib/vocabulary.ts`. `tests/test_vocabulary.py` fails if they differ.

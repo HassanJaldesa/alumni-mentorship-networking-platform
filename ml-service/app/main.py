@@ -6,7 +6,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.routers import profiles
+from app.routers import profiles, recommendations
 from app.services.embedding import is_model_loaded, load_model
 
 
@@ -23,6 +23,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.include_router(profiles.router)
+app.include_router(recommendations.router)
 
 @app.get("/health")
 def health():

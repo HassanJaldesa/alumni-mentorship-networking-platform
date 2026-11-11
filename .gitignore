@@ -27,4 +27,8 @@ synthetic_profiles.json
 .DS_Store
 Thumbs.db
 .vscode/
+ml-service/synthetic/evaluation_results.jsonml-service/synthetic/test_case_results.md
+ml-service/synthetic/load_test_results.json
 ml-service/synthetic/evaluation_results.json
+ml-service/synthetic/test_case_results.md
+ml-service/synthetic/load_test_results.json

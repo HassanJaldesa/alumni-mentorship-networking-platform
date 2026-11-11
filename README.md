@@ -61,3 +61,4 @@ With the recommendation service also running, http://localhost:3000/api/health s
 - Saving the questionnaire stores the answers and calls `POST /profiles/{user_id}/vectors` on the recommendation service, which stores a 384-dimension SBERT embedding, a 44-dimension multi-hot vector and a 428-dimension unified vector in `profile_vectors`.
 - Requests to the recommendation service carry a 60-second HS256 JWT signed with a shared secret: `SERVICE_TOKEN` in `ml-service/.env` and `ML_SERVICE_TOKEN` in `frontend/.env.local` must be identical.
 - The fixed answer lists are kept in `ml-service/app/vocabulary.py` and `frontend/lib/vocabulary.ts`. `tests/test_vocabulary.py` fails if they differ.
+See docs/TESTING.md for how to run, load data into and test the platform.

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import AppHeader from "@/components/AppHeader";
+import AppShell from "@/components/AppShell";
 import { getSession } from "@/lib/session";
 
 export const metadata: Metadata = { title: "Administrator Dashboard" };
@@ -11,12 +11,9 @@ export default async function AdminHomePage() {
   if (!session) redirect("/login");
 
   return (
-    <div className="min-h-screen">
-      <AppHeader session={session} />
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <h1 className="text-2xl font-bold">Welcome, {session.firstName}</h1>
-        <p className="mt-2 text-slate-600">User management and platform reports will appear here.</p>
-      </main>
-    </div>
+    <AppShell session={session}>
+      <h1 className="text-2xl font-bold">Welcome, {session.firstName}</h1>
+      <p className="text-slate-600">User management and platform reports will appear here.</p>
+    </AppShell>
   );
 }

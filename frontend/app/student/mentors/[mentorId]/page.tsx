@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import RequestPanel, { type RequestState } from "@/components/RequestPanel";
+import { query } from "@/lib/db";
 import { getMentorDetails, markRecommendationViewed } from "@/lib/mentors";
 import { getStudentId } from "@/lib/recommendations";
 import { getSession } from "@/lib/session";
@@ -17,7 +19,7 @@ function Box({ title, children }: { title: string; children: React.ReactNode }) 
   );
 }
 
-// Mentor profile (Figure 4.8, FR-07).
+// Mentor profile and mentorship request (Figure 4.8, FR-07, FR-08).
 export default async function MentorProfilePage({
   params,
 }: {
@@ -33,31 +35,57 @@ export default async function MentorProfilePage({
   if (studentId) await markRecommendationViewed(studentId, mentor.mentorId);
   const placesLeft = Math.max(0, mentor.maxMentees - mentor.activeMentees);
 
+  // What the request panel should show for this student and mentor (FR-08).
+  const [latest] = studentId
+    ? await query<{ status: string }>(
+        `SELECT status FROM mentorship_requests WHERE student_id = $1 AND mentor_id = $2
+         ORDER BY (status = 'ACCEPTED') DESC, request_date DESC LIMIT 1`,
+        [studentId, mentor.mentorId],
+      )
+    : [];
+  const requestState: RequestState =
+    latest?.status === "ACCEPTED"
+      ? "active"
+      : latest?.status === "PENDING"
+        ? "pending"
+        : placesLeft === 0
+          ? "full"
+          : "can-request";
+
   return (
     <AppShell session={session}>
-      <Link href="/student/recommendations" className="text-sm font-medium text-blue-800 hover:underline">
+      <Link
+        href="/student/recommendations"
+        className="text-sm font-medium text-blue-800 hover:underline"
+      >
         ← Back to recommendations
       </Link>
 
-      <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center">
-        <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xl font-semibold text-slate-700">
-          {mentor.firstName[0]}
-          {mentor.lastName[0]}
-        </span>
-        <div>
-          <h1 className="text-2xl font-bold">
-            {mentor.firstName} {mentor.lastName}
-          </h1>
-          <p className="text-slate-600">{mentor.industry}</p>
-          <p className="mt-1 text-sm font-semibold">
-            Mentee places: {placesLeft} of {mentor.maxMentees} available
-          </p>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center lg:col-span-2">
+          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-slate-200 text-xl font-semibold text-slate-700">
+            {mentor.firstName[0]}
+            {mentor.lastName[0]}
+          </span>
+          <div>
+            <h1 className="text-2xl font-bold">
+              {mentor.firstName} {mentor.lastName}
+            </h1>
+            <p className="text-slate-600">{mentor.industry}</p>
+            <p className="mt-1 text-sm font-semibold">
+              Mentee places: {placesLeft} of {mentor.maxMentees} available
+            </p>
+          </div>
+        </section>
+        <div className="lg:row-span-2">
+          <RequestPanel mentorId={mentor.mentorId} state={requestState} />
         </div>
-      </section>
-
-      <Box title="About">
-        <p className="whitespace-pre-line">{mentor.biography}</p>
-      </Box>
+        <div className="lg:col-span-2">
+          <Box title="About">
+            <p className="whitespace-pre-line">{mentor.biography}</p>
+          </Box>
+        </div>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Box title="Skills">
